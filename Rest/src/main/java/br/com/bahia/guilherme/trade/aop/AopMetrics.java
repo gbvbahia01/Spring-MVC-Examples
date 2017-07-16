@@ -5,8 +5,7 @@
  */
 package br.com.bahia.guilherme.trade.aop;
 
-import br.com.bahia.guilherme.trade.rest.TradeRest;
-import br.com.bahia.guilherme.trade.to.ValidateResultTO;
+import br.com.bahia.guilherme.trade.to.TradeTO;
 import br.com.bahia.guilherme.trade.util.Metrics;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -38,12 +37,13 @@ public class AopMetrics {
 
     @Around(value = "execution(* br.com.bahia.guilherme.trade.validade.ValidateTrade.validate(java.util.List))")
     public Object metricsAdvice(ProceedingJoinPoint jPoint) throws Throwable {
-        List<ValidateResultTO> trades = null;
+        List<TradeTO> trades = null;
         try {
+            trades = (List<TradeTO>) jPoint.getArgs()[0];
             watch.start();
-            trades = (List<ValidateResultTO>) jPoint.proceed(jPoint.getArgs());
+            Object result = jPoint.proceed(jPoint.getArgs());
             watch.stop();
-            return trades;
+            return result;
         } finally {
             if (trades != null) {
                 metrics.registry(watch.getTotalTimeSeconds(), watch.getLastTaskTimeMillis(),
