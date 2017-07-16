@@ -1,12 +1,11 @@
 package br.com.gbvbahia.smvc.taskify.domain;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class Task {
 
-	private int id;
+	private Long id;
 	private String name;
 	private int priority;
 	private String status;
@@ -15,13 +14,15 @@ public class Task {
 	private User assignee;
 	private Date completedDate;
 	
-	private List<TaskComment> comments = new ArrayList<TaskComment>();
+	private List<File> files;
+
+	private String comments;
 
 	public Task() {
 	}
 
-	public Task(String name, int priority, String status, User createdBy,
-			Date createdDate, User assignee) {
+	public Task(String name, int priority, String status, User createdBy, Date createdDate, User assignee,
+			String comments) {
 		super();
 		this.name = name;
 		this.priority = priority;
@@ -29,13 +30,14 @@ public class Task {
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
 		this.assignee = assignee;
+		this.comments = comments;
 	}
 
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -95,21 +97,27 @@ public class Task {
 		this.completedDate = completedDate;
 	}
 
-	public List<TaskComment> getComments() {
+	public String getComments() {
 		return comments;
 	}
 
-	public void setComments(List<TaskComment> comments) {
+	public void setComments(String comments) {
 		this.comments = comments;
+	}
+
+	public List<File> getFiles() {
+		return files;
+	}
+
+	public void setFiles(List<File> files) {
+		this.files = files;
 	}
 
 	@Override
 	public String toString() {
-		return "Task [id=" + id + ", name=" + name + ", priority=" + priority
-				+ ", status=" + status + ", createdBy=" + createdBy
-				+ ", createdDate=" + createdDate + ", assignee=" + assignee
-				+ ", completedDate=" + completedDate + ", comments=" + comments
-				+ "]";
+		return "Task [id=" + id + ", name=" + name + ", priority=" + priority + ", status=" + status + ", createdBy="
+				+ createdBy + ", createdDate=" + createdDate + ", assignee=" + assignee + ", completedDate="
+				+ completedDate + ", files=" + files + ", comments=" + comments + "]";
 	}
 
 }

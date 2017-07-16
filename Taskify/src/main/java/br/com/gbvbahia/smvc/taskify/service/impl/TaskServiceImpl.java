@@ -2,7 +2,6 @@ package br.com.gbvbahia.smvc.taskify.service.impl;
 
 import br.com.gbvbahia.smvc.taskify.dao.TaskDAO;
 import br.com.gbvbahia.smvc.taskify.domain.Task;
-import br.com.gbvbahia.smvc.taskify.domain.TaskComment;
 import br.com.gbvbahia.smvc.taskify.service.TaskService;
 import br.com.gbvbahia.smvc.taskify.service.UserService;
 import java.util.Date;
@@ -19,15 +18,16 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+
 @Service("AnnotatedTaskService")
 @Primary
 public class TaskServiceImpl implements TaskService {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
-//	@Autowired
-//	private UserPreferences userPreferences;
-	
+	// @Autowired
+	// private UserPreferences userPreferences;
+
 	@Autowired
 	private UserService userService;
 
@@ -56,19 +56,28 @@ public class TaskServiceImpl implements TaskService {
 		logger.debug(this.getClass().getName() + " is about to destroy!");
 	}
 
-	public Task createTask(String name, int priority, int createdByuserId, int assigneeUserId) {
+	public Task createTask(String name, int priority, Long createdByuserId, Long assigneeUserId, String comments) {
 
-		Task task = new Task(name, priority, "Open", userService.findById(createdByuserId), null, userService.findById(assigneeUserId));
+		Task task = new Task(name, priority, "Open", userService.findById(createdByuserId), null,
+				userService.findById(assigneeUserId), comments);
 		taskDAO.createTask(task);
 		logger.info("Task created: " + task);
 		return task;
 	}
 
-	public Task findTaskById(int taskId) {
+	public Task createTask(Task task) {
+		if (StringUtils.isEmpty(task.getStatus()))
+			task.setStatus("Open");
+		taskDAO.createTask(task);
+		logger.info("Task created: " + task);
+		return task;
+	}
+
+	public Task findTaskById(Long taskId) {
 		return taskDAO.findById(taskId);
 	}
 
-	public List<Task> findTasksByAssignee(int assigneeId) {
+	public List<Task> findTasksByAssignee(Long assigneeId) {
 		return taskDAO.findByAssignee(assigneeId);
 	}
 
@@ -82,21 +91,23 @@ public class TaskServiceImpl implements TaskService {
 
 	@Override
 	public int findAllTasksCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.taskDAO.findAllTasksCount();
 	}
 
 	public List<Task> findAllOpenTasks() {
 		return taskDAO.findAllOpenTasks();
 	}
 
-	@Override
-	public int findAllOpenTasksCount() {
-		// TODO Auto-generated method stub
-		return 0;
+	public List<Task> findAllClosedTasks() {
+		return taskDAO.findAllClosedTasks();
 	}
 
-	public List<Task> findOpenTasksByAssignee(int assignee) {
+	@Override
+	public int findAllOpenTasksCount() {
+		return this.taskDAO.findAllOpenTasksCount();
+	}
+
+	public List<Task> findOpenTasksByAssignee(Long assignee) {
 		return taskDAO.findOpenTasksByAssignee(assignee);
 	}
 
@@ -104,17 +115,53 @@ public class TaskServiceImpl implements TaskService {
 		return taskDAO.findOpenTasksByAssignee(assigneeUserName);
 	}
 
-	public void completeTask(int taskId, String comments, int user) {
+	public List<Task> findClosedTasksByAssignee(Long assignee) {
+		return taskDAO.findClosedTasksByAssignee(assignee);
+	}
+
+	public List<Task> findClosedTasksByAssignee(String assigneeUserName) {
+		return taskDAO.findClosedTasksByAssignee(assigneeUserName);
+	}
+
+	public void completeTask(Long taskId, String comments, Long user) {
 		Task task = taskDAO.findById(taskId);
 		if (task.getAssignee().getId() != user) {
 			throw new UnsupportedOperationException("This task is not assigned to this user");
 		}
 		task.setStatus("Complete");
 		task.setCompletedDate(new Date());
+		task.setComments(comments);
 
-		if (!StringUtils.isEmpty(comments)) {
-			task.getComments().add(new TaskComment(task.getAssignee(), comments, task.getStatus()));
-		}
+	}
+
+	@Override
+	public void reassignTask(Long taskId, String comments, Long assigneeId) {
+		Task task = taskDAO.findById(taskId);
+		task.setAssignee(userService.findById(assigneeId));
+		task.setStatus("Open");
+		task.setCompletedDate(null);
+		task.setComments(comments);
+
+	}
+
+	@Override
+	public void deleteTask(Long taskId) {
+		taskDAO.deleteTask(taskDAO.findById(taskId));
+	}
+
+	@Override
+	public void addFile(Long taskId, String fileName) {
+		taskDAO.addFile(taskId, fileName);
+	}
+
+	@Override
+	public void deleteFile(Long taskId, Long fileId) {
+		taskDAO.deleteFile(taskId, fileId);
+	}
+
+	@Override
+	public void deleteAllFiles(Long taskId) {
+		taskDAO.deleteAllFiles(taskId);
 	}
 
 }

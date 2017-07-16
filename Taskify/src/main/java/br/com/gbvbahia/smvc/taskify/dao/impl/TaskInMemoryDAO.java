@@ -1,6 +1,7 @@
 package br.com.gbvbahia.smvc.taskify.dao.impl;
 
 import br.com.gbvbahia.smvc.taskify.dao.TaskDAO;
+import br.com.gbvbahia.smvc.taskify.domain.File;
 import br.com.gbvbahia.smvc.taskify.domain.Task;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,6 +10,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
+
 
 @Repository("taskDAO")
 public class TaskInMemoryDAO implements TaskDAO {
@@ -19,9 +22,8 @@ public class TaskInMemoryDAO implements TaskDAO {
 		this.taskDataSource = new ArrayList<Task>();
 	}
 
-	private int getIdSequenceNextVal() {
-		return taskDataSource.parallelStream().mapToInt(Task::getId).max()
-				.orElse(0) + 1;
+	private long getIdSequenceNextVal() {
+		return taskDataSource.parallelStream().mapToLong(Task::getId).max().orElse(0) + 1;
 	}
 
 	@Override
@@ -32,27 +34,23 @@ public class TaskInMemoryDAO implements TaskDAO {
 	}
 
 	@Override
-	public Task findById(int taskId) {
-		return taskDataSource.parallelStream()
-				.filter(task -> task.getId() == taskId).findAny().orElse(null);
+	public Task findById(Long taskId) {
+		return taskDataSource.parallelStream().filter(task -> task.getId() == taskId).findAny().orElse(null);
 	}
 
 	@Override
-	public List<Task> findByAssignee(int assigneeId) {
-		return taskDataSource
-				.parallelStream()
-				.filter(task -> Objects.nonNull(task.getAssignee())
-						&& Objects.equals(task.getAssignee().getId(),
-								assigneeId)).collect(Collectors.toList());
+	public List<Task> findByAssignee(Long assigneeId) {
+		return taskDataSource.parallelStream().filter(
+				task -> Objects.nonNull(task.getAssignee()) && Objects.equals(task.getAssignee().getId(), assigneeId))
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<Task> findByAssignee(String assigneeUserName) {
-		return taskDataSource
-				.parallelStream()
+		return taskDataSource.parallelStream()
 				.filter(task -> Objects.nonNull(task.getAssignee())
-						&& Objects.equals(task.getAssignee().getUserName(),
-								assigneeUserName)).collect(Collectors.toList());
+						&& Objects.equals(task.getAssignee().getUserName(), assigneeUserName))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -67,8 +65,13 @@ public class TaskInMemoryDAO implements TaskDAO {
 
 	@Override
 	public List<Task> findAllOpenTasks() {
-		return taskDataSource.parallelStream()
-				.filter(task -> Objects.equals(task.getStatus(), "Open"))
+		return taskDataSource.parallelStream().filter(task -> Objects.equals(task.getStatus(), "Open"))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Task> findAllClosedTasks() {
+		return taskDataSource.parallelStream().filter(task -> Objects.equals(task.getStatus(), "Closed"))
 				.collect(Collectors.toList());
 	}
 
@@ -78,23 +81,77 @@ public class TaskInMemoryDAO implements TaskDAO {
 	}
 
 	@Override
-	public List<Task> findOpenTasksByAssignee(int assigneeId) {
-		return taskDataSource
-				.parallelStream()
-				.filter(task -> Objects.equals(task.getStatus(), "Open")
-						&& Objects.nonNull(task.getAssignee())
-						&& Objects.equals(task.getAssignee().getId(),
-								assigneeId)).collect(Collectors.toList());
+	public List<Task> findOpenTasksByAssignee(Long assigneeId) {
+		return taskDataSource.parallelStream().filter(task -> Objects.equals(task.getStatus(), "Open")
+				&& Objects.nonNull(task.getAssignee()) && Objects.equals(task.getAssignee().getId(), assigneeId))
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<Task> findOpenTasksByAssignee(String assigneeUserName) {
-		return taskDataSource
-				.parallelStream()
-				.filter(task -> Objects.equals(task.getStatus(), "Open")
-						&& Objects.nonNull(task.getAssignee())
-						&& Objects.equals(task.getAssignee().getUserName(),
-								assigneeUserName)).collect(Collectors.toList());
+		return taskDataSource.parallelStream()
+				.filter(task -> Objects.equals(task.getStatus(), "Open") && Objects.nonNull(task.getAssignee())
+						&& Objects.equals(task.getAssignee().getUserName(), assigneeUserName))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Task> findClosedTasksByAssignee(Long assigneeId) {
+		return taskDataSource.parallelStream().filter(task -> Objects.equals(task.getStatus(), "Closed")
+				&& Objects.nonNull(task.getAssignee()) && Objects.equals(task.getAssignee().getId(), assigneeId))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Task> findClosedTasksByAssignee(String assigneeUserName) {
+		return taskDataSource.parallelStream()
+				.filter(task -> Objects.equals(task.getStatus(), "Closed") && Objects.nonNull(task.getAssignee())
+						&& Objects.equals(task.getAssignee().getUserName(), assigneeUserName))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void deleteTask(Task task) {
+		taskDataSource.remove(task);
+	}
+
+	@Override
+	public void addFile(Long taskId, String fileName) {
+		Task task = this.findById(taskId);
+		if (task.getFiles() == null) {
+			task.setFiles(new ArrayList<>(1));
+		}
+
+		task.getFiles().add(new File((task.getId() * 10) + (task.getFiles().size() + 1), fileName));
+	}
+
+	private File findFileById(Task task, Long fileId) {
+		if (!CollectionUtils.isEmpty(task.getFiles())) {
+			for (File file : task.getFiles()) {
+				if (file.getId() == fileId)
+					return file;
+
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public void deleteFile(Long taskId, Long fileId) {
+		Task task = this.findById(taskId);
+		File file = findFileById(task, fileId);
+		if (file != null)
+			task.getFiles().remove(file);
+
+	}
+
+	@Override
+	public void deleteAllFiles(Long taskId) {
+		Task task = this.findById(taskId);
+		if (!CollectionUtils.isEmpty(task.getFiles())) {
+			task.getFiles().clear();
+		}
+
 	}
 
 }

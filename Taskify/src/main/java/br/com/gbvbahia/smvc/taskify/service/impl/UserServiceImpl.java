@@ -1,8 +1,12 @@
 package br.com.gbvbahia.smvc.taskify.service.impl;
 
 import br.com.gbvbahia.smvc.taskify.dao.UserDAO;
+import br.com.gbvbahia.smvc.taskify.domain.File;
 import br.com.gbvbahia.smvc.taskify.domain.User;
 import br.com.gbvbahia.smvc.taskify.service.UserService;
+import java.util.Date;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +25,7 @@ public class UserServiceImpl implements UserService {
 		logger.debug("SimpleTaskService instantiated");
 	}
 
-	public User findById(int userId) {
+	public User findById(Long userId) {
 		return this.userDAO.findById(userId);
 	}
 
@@ -29,11 +33,48 @@ public class UserServiceImpl implements UserService {
 		return this.userDAO.findByUserName(userName);
 	}
 
-	public User createNewUser(String name, String userName, String password) {
-		User newUser = new User(-1, name, userName, password);
-		this.userDAO.createUser(newUser);
-		logger.debug("New user created successfully: " + newUser);
-		return newUser;
+	public User createNewUser(User user) {
+		user.setId(new Date().getTime());
+		this.userDAO.createUser(user);
+		logger.debug("New user created successfully: " + user);
+		return user;
+	}
+
+	@Override
+	public void updateUser(User user) {
+		User existingUser = this.userDAO.findById(user.getId());
+		if (existingUser == null) {
+			throw new UnsupportedOperationException("No user found with id, " + user.getId());
+		}
+		existingUser.setDateOfBirth(user.getDateOfBirth());
+		existingUser.setName(user.getName());
+		existingUser.setPassword(user.getPassword());
+		existingUser.setUserName(user.getUserName());
+	}
+
+	@Override
+	public void deleteUser(User user) {
+		User existingUser = this.userDAO.findById(user.getId());
+		if (existingUser == null) {
+			throw new UnsupportedOperationException("No user found with id, " + user.getId());
+		}
+		this.userDAO.deleteUser(existingUser);
+	}
+
+	@Override
+	public List<User> findAllUsers() {
+		return this.userDAO.findAllUsers();
+	}
+
+	@Override
+	public File addProfileImage(Long userId, String fileName) {
+		return this.userDAO.addProfileImage(userId, fileName);
+
+	}
+
+	@Override
+	public void deleteProfileImage(Long userId) {
+		this.userDAO.removeProfileImage(userId);
 	}
 
 }

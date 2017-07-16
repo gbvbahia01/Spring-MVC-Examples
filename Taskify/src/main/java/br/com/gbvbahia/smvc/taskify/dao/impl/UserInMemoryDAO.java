@@ -1,6 +1,7 @@
 package br.com.gbvbahia.smvc.taskify.dao.impl;
 
 import br.com.gbvbahia.smvc.taskify.dao.UserDAO;
+import br.com.gbvbahia.smvc.taskify.domain.File;
 import br.com.gbvbahia.smvc.taskify.domain.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,26 +19,46 @@ public class UserInMemoryDAO implements UserDAO {
 		this.userDataSource = new ArrayList<User>();
 	}
 
-	public User findById(int userId) {
-		return userDataSource.parallelStream()
-				.filter(user -> user.getId() == userId).findAny().orElse(null);
+	public User findById(Long userId) {
+		return userDataSource.parallelStream().filter(user -> user.getId().compareTo(userId) == 0).findAny()
+				.orElse(null);
 	}
 
 	public User findByUserName(String userName) {
-		return userDataSource.parallelStream()
-				.filter(user -> Objects.equals(user.getUserName(), userName))
-				.findAny().orElse(null);
+		return userDataSource.parallelStream().filter(user -> Objects.equals(user.getUserName(), userName)).findAny()
+				.orElse(null);
 	}
 
-	private int getIdSequenceNextVal() {
-		return userDataSource.parallelStream().mapToInt(User::getId).max()
-				.orElse(0) + 1;
+	private Long getIdSequenceNextVal() {
+		return userDataSource.parallelStream().mapToLong(User::getId).max().orElse(0) + 1;
 	}
 
 	@Override
 	public void createUser(User user) {
 		user.setId(this.getIdSequenceNextVal());
 		userDataSource.add(user);
+	}
+
+	@Override
+	public void deleteUser(User user) {
+		this.userDataSource.remove(user);
+	}
+
+	@Override
+	public List<User> findAllUsers() {
+		return this.userDataSource;
+	}
+
+	@Override
+	public File addProfileImage(Long userId, String fileName) {
+		User user = this.findById(userId);
+		user.setProfileImage(new File(1000 + user.getId(), fileName));
+		return user.getProfileImage();
+	}
+
+	@Override
+	public void removeProfileImage(Long userId) {
+		this.findById(userId).setProfileImage(null);
 	}
 
 }
