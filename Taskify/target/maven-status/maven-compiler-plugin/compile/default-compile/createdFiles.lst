@@ -1,0 +1,14 @@
+br/com/gbvbahia/smvc/taskify/domain/User.class
+br/com/gbvbahia/smvc/taskify/service/impl/TaskServiceImpl.class
+br/com/gbvbahia/smvc/taskify/dao/impl/UserInMemoryDAO.class
+br/com/gbvbahia/smvc/taskify/dao/TaskDAO.class
+br/com/gbvbahia/smvc/taskify/dao/UserDAO.class
+br/com/gbvbahia/smvc/taskify/domain/TaskComment.class
+br/com/gbvbahia/smvc/taskify/service/impl/UserServiceImpl.class
+br/com/gbvbahia/smvc/taskify/service/UserService.class
+br/com/gbvbahia/smvc/taskify/dao/impl/TaskInMemoryDAO.class
+br/com/gbvbahia/smvc/taskify/domain/UserPreferences.class
+br/com/gbvbahia/smvc/taskify/service/TaskService.class
+br/com/gbvbahia/smvc/taskify/web/controllers/HomeController.class
+br/com/gbvbahia/smvc/taskify/domain/Task.class
+br/com/gbvbahia/smvc/taskify/service/GreetingService.class
