@@ -15,11 +15,12 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-public class ApplicationInitializer implements WebApplicationInitializer {
+public class ApplicationInitializer //implements WebApplicationInitializer 
+{
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationInitializer.class);
 
-	@Override
+	//@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
 
 		logger.info("===== Application is starting up! ========");
