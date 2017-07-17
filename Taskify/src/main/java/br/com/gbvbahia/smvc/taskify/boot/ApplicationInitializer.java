@@ -1,4 +1,4 @@
-package br.com.gbvbahia.smvc.taskify.boot;
+    package br.com.gbvbahia.smvc.taskify.boot;
 
 import java.util.EnumSet;
 
@@ -34,7 +34,9 @@ public class ApplicationInitializer //implements WebApplicationInitializer
 		servlet.addMapping("/");
 		servlet.setAsyncSupported(true);
 
-		servlet.setMultipartConfig(new MultipartConfigElement("/tmp/servlet-uploads", 20848820, 418018841, 1048576));
+		servlet.setMultipartConfig(new MultipartConfigElement(
+                        "/Users/Guilherme/Developer/NetBeansProjects/SpringMVC/Taskify/upload",
+                        20848820, 418018841, 1048576));
 
 		FilterRegistration.Dynamic filter = servletContext.addFilter("httpMethodFilter",
 				"org.springframework.web.filter.HiddenHttpMethodFilter");

@@ -1,4 +1,4 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page session="false"%>
 <html>
@@ -19,8 +19,8 @@
 
 				<form:form action="../${user.id}/profileForm" method="post" enctype="multipart/form-data">
 					<div class="form-group">
-						<label for="txtUserName">Choose File</label>
-						<input type="file" name="profileImage"/>
+						<label for="fileInput">Choose File for ${user.name}</label>
+                                                <input type="file" name="profileImage" id="fileInput"/>
 					</div>
 					<button type="submit" class="btn btn-success">Upload</button>
 					<a href="../${user.id}" class="btn btn-primary">Cancel</a>
