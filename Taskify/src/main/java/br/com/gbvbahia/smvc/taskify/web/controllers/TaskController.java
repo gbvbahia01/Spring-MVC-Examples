@@ -245,9 +245,7 @@ public class TaskController {
 			@RequestBody CreateTaskRequest createRequest) {
 
 		DeferredResult<CreateTaskResponse> deferredResult = new DeferredResult<>();
-		CompletableFuture.runAsync(new Runnable() {
-			@Override
-			public void run() {
+		CompletableFuture.runAsync(() -> { //New Runnable
 				Task task = new Task();
 				task.setName(createRequest.getTaskName());
 				task.setCreatedBy(userService.findById(createRequest.getCreatorId()));
@@ -258,7 +256,6 @@ public class TaskController {
 				// Send an email here...
 				// Send some push notifications here...
 				deferredResult.setResult(new CreateTaskResponse(persistedTask));
-			}
 		});
 
 		return deferredResult;

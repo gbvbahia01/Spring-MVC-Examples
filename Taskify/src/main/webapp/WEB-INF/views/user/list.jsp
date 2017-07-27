@@ -1,4 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ page session="false"%>
 <html>
 <head>
@@ -30,7 +31,7 @@
 				<ul>
 					<c:forEach var="user" items="${users}">
 						<tr>
-							<td><a href='<c:url value="/users/${user.id}"/>'>${user.id}</a></td>
+							<td><a href='<spring:url value="/users/${user.id}"/>'>${user.id}</a></td>
 							<td>${user.userName}</td>
 							<td>${user.name}</td>
 							<td>${user.dateOfBirth}</td>
