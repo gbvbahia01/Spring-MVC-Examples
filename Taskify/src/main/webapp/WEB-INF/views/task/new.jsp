@@ -77,14 +77,14 @@
                             </div>
                         </spring:bind>
                         <!-- 
-                        <div class="from-group error">
-                        <label></label>
-                        <form:errors path="assignee"></form:errors>
-                </div>
-                            -->
+                            <div class="from-group error">
+                                <label></label>
+                            <form:errors path="assignee"></form:errors>
+                        </div>
+                        -->
 
                             <button type="submit" class="btn btn-success">Save</button>
-                            <a href='<spring:url value="/tasks/new"/>'
+                            <a href='<spring:url value="/tasks"/>'
                            class="btn btn-warning">Cancel</a>
                     </form:form>
                 </div>
