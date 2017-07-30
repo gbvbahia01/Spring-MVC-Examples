@@ -1,4 +1,4 @@
-    package br.com.gbvbahia.smvc.taskify.boot;
+package br.com.gbvbahia.smvc.taskify.boot;
 
 import java.util.EnumSet;
 

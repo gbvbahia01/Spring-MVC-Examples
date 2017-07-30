@@ -12,6 +12,8 @@ public interface UserService {
 
 	User createNewUser(User user);
 
+	void createUsers(List<User> users);
+
 	void updateUser(User user);
 
 	void deleteUser(User user);

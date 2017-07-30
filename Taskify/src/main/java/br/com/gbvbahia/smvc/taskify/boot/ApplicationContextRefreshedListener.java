@@ -1,4 +1,4 @@
-package br.com.gbvbahia.smvc.taskify.boot;
+    package br.com.gbvbahia.smvc.taskify.boot;
 
 import br.com.gbvbahia.smvc.taskify.domain.File;
 import br.com.gbvbahia.smvc.taskify.domain.Task;
@@ -14,7 +14,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class ApplicationContextRefreshedListener implements ApplicationListener<ContextRefreshedEvent> {
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationContextRefreshedListener.class);

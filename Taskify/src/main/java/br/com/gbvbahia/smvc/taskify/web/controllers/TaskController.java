@@ -62,7 +62,7 @@ public class TaskController {
 		} else if (status.equals("Open"))
 			model.addAttribute("tasks", taskService.findAllOpenTasks());
 		else if (status.equals("Closed"))
-			model.addAttribute("tasks", taskService.findAllClosedTasks());
+			model.addAttribute("tasks", taskService.findAllCompletedTasks());
 		else
 			throw new IllegalArgumentException(
 					"Illegal value for status supplied: " + status + "; Only 'Open' and 'Closed' are supported.");
@@ -81,7 +81,7 @@ public class TaskController {
 		} else if (status.equals("Open"))
 			model.addAttribute("tasks", taskService.findOpenTasksByAssignee(userId));
 		else if (status.equals("Closed"))
-			model.addAttribute("tasks", taskService.findClosedTasksByAssignee(userId));
+			model.addAttribute("tasks", taskService.findCompletedTasksByAssignee(userId));
 		else
 			throw new IllegalArgumentException(
 					"Illegal value for status supplied: " + status + "; Only 'Open' and 'Closed' are supported.");
@@ -110,7 +110,7 @@ public class TaskController {
 	@RequestMapping(path = "/tasks/new", method = RequestMethod.POST)
 	public String createNewTask(@ModelAttribute("task") @Valid Task task, BindingResult result, Model model) {
 
-		if(result.hasErrors()) {
+		if (result.hasErrors()) {
 			logger.error(">>>>>>> Validation ERROR : " + result.getAllErrors());
 			return "task/new";
 		} else {
@@ -172,7 +172,7 @@ public class TaskController {
 
 	@InitBinder("task")
 	public void initBinder(WebDataBinder binder) {
-//		binder.addCustomFormatter(new DateFormatter("dd/MM/yyyy"));
+		// binder.addCustomFormatter(new DateFormatter("dd/MM/yyyy"));
 		binder.addValidators(new TaskValidator());
 	}
 
@@ -186,7 +186,7 @@ public class TaskController {
 		} else if (status.equals("Open"))
 			return taskService.findAllOpenTasks();
 		else if (status.equals("Closed"))
-			return taskService.findAllClosedTasks();
+			return taskService.findAllCompletedTasks();
 		else
 			throw new IllegalArgumentException(
 					"Illegal value for status supplied: " + status + "; Only 'Open' and 'Closed' are supported.");
@@ -245,7 +245,9 @@ public class TaskController {
 			@RequestBody CreateTaskRequest createRequest) {
 
 		DeferredResult<CreateTaskResponse> deferredResult = new DeferredResult<>();
-		CompletableFuture.runAsync(() -> { //New Runnable
+		CompletableFuture.runAsync(new Runnable() {
+			@Override
+			public void run() {
 				Task task = new Task();
 				task.setName(createRequest.getTaskName());
 				task.setCreatedBy(userService.findById(createRequest.getCreatorId()));
@@ -256,6 +258,7 @@ public class TaskController {
 				// Send an email here...
 				// Send some push notifications here...
 				deferredResult.setResult(new CreateTaskResponse(persistedTask));
+			}
 		});
 
 		return deferredResult;
@@ -277,7 +280,7 @@ public class TaskController {
 				} else if (status.equals("Open"))
 					model.addAttribute("tasks", taskService.findOpenTasksByAssignee(userId));
 				else if (status.equals("Closed"))
-					model.addAttribute("tasks", taskService.findClosedTasksByAssignee(userId));
+					model.addAttribute("tasks", taskService.findCompletedTasksByAssignee(userId));
 				else
 					throw new IllegalArgumentException("Illegal value for status supplied: " + status
 							+ "; Only 'Open' and 'Closed' are supported.");

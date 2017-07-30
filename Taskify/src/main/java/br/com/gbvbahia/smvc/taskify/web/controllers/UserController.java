@@ -43,7 +43,7 @@ public class UserController {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-	private static final String PROFILE_IMAGE_SAVE_LOCATION = "/Users/Guilherme/Developer/NetBeansProjects/SpringMVC/Taskify/uploaded";
+	private static final String PROFILE_IMAGE_SAVE_LOCATION = "/tmp/taskify/profileImages";
 
 	@Autowired
 	private UserService userService;

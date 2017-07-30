@@ -13,14 +13,15 @@ import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 
 @Service("AnnotatedTaskService")
 @Primary
+@Transactional
 public class TaskServiceImpl implements TaskService {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
@@ -32,15 +33,14 @@ public class TaskServiceImpl implements TaskService {
 	private UserService userService;
 
 	@Autowired(required = true)
-	@Qualifier("taskDAO")
 	private TaskDAO taskDAO;
 
 	public TaskServiceImpl() {
-		logger.debug("SimpleTaskService instantiated");
+		logger.debug("TaskServiceImpl instantiated");
 	}
 
-	@Autowired
-	public TaskServiceImpl(@Qualifier("userService") UserService userService, @Qualifier("taskDAO") TaskDAO taskDAO) {
+	// @Autowired
+	public TaskServiceImpl(UserService userService, TaskDAO taskDAO) {
 		super();
 		this.userService = userService;
 		this.taskDAO = taskDAO;
@@ -60,7 +60,7 @@ public class TaskServiceImpl implements TaskService {
 
 		Task task = new Task(name, priority, "Open", userService.findById(createdByuserId), null,
 				userService.findById(assigneeUserId), comments);
-		taskDAO.createTask(task);
+		taskDAO.save(task);
 		logger.info("Task created: " + task);
 		return task;
 	}
@@ -68,75 +68,94 @@ public class TaskServiceImpl implements TaskService {
 	public Task createTask(Task task) {
 		if (StringUtils.isEmpty(task.getStatus()))
 			task.setStatus("Open");
-		taskDAO.createTask(task);
+		taskDAO.save(task);
 		logger.info("Task created: " + task);
 		return task;
 	}
 
 	public Task findTaskById(Long taskId) {
-		return taskDAO.findById(taskId);
+		return taskDAO.findOne(taskId);
 	}
 
 	public List<Task> findTasksByAssignee(Long assigneeId) {
-		return taskDAO.findByAssignee(assigneeId);
+		return taskDAO.findByAssigneeId(assigneeId);
+
 	}
 
 	public List<Task> findTasksByAssignee(String assigneeUserName) {
-		return taskDAO.findByAssignee(assigneeUserName);
+		return taskDAO.findByAssigneeUserName(assigneeUserName);
+
 	}
 
 	public List<Task> findAllTasks() {
-		return taskDAO.findAllTasks();
+		return taskDAO.findAll();
+
 	}
 
 	@Override
 	public int findAllTasksCount() {
-		return this.taskDAO.findAllTasksCount();
+		return (int) this.taskDAO.count();
+
 	}
 
 	public List<Task> findAllOpenTasks() {
-		return taskDAO.findAllOpenTasks();
+		return taskDAO.findOpenTasks();
+
 	}
 
-	public List<Task> findAllClosedTasks() {
-		return taskDAO.findAllClosedTasks();
+	public List<Task> findAllCompletedTasks() {
+		return taskDAO.findCompletedTasks();
+
 	}
 
 	@Override
 	public int findAllOpenTasksCount() {
 		return this.taskDAO.findAllOpenTasksCount();
+
+	}
+
+	@Override
+	public int findAllCompletedTasksCount() {
+		return this.taskDAO.findAllCompletedTasksCount();
+
 	}
 
 	public List<Task> findOpenTasksByAssignee(Long assignee) {
-		return taskDAO.findOpenTasksByAssignee(assignee);
+		return taskDAO.findOpenTasksByAssigneeId(assignee);
+
 	}
 
 	public List<Task> findOpenTasksByAssignee(String assigneeUserName) {
-		return taskDAO.findOpenTasksByAssignee(assigneeUserName);
+		return taskDAO.findOpenTasksByAssigneeUserName(assigneeUserName);
+
 	}
 
-	public List<Task> findClosedTasksByAssignee(Long assignee) {
-		return taskDAO.findClosedTasksByAssignee(assignee);
+	public List<Task> findCompletedTasksByAssignee(Long assignee) {
+		return taskDAO.findCompletedTasksByAssigneeId(assignee);
+
 	}
 
-	public List<Task> findClosedTasksByAssignee(String assigneeUserName) {
-		return taskDAO.findClosedTasksByAssignee(assigneeUserName);
+	public List<Task> findCompletedTasksByAssignee(String assigneeUserName) {
+		return taskDAO.findCompletedTasksByAssigneeUserName(assigneeUserName);
+
 	}
 
-	public void completeTask(Long taskId, String comments, Long user) {
-		Task task = taskDAO.findById(taskId);
-		if (task.getAssignee().getId() != user) {
+	public void completeTask(Long taskId, String comments, Long userId) {
+		Task task = taskDAO.findOne(taskId);
+		if (!task.getAssignee().getId().equals(userId)) {
 			throw new UnsupportedOperationException("This task is not assigned to this user");
 		}
 		task.setStatus("Complete");
 		task.setCompletedDate(new Date());
 		task.setComments(comments);
 
+		taskDAO.save(task);
+		// taskDAO.flush();
 	}
 
 	@Override
 	public void reassignTask(Long taskId, String comments, Long assigneeId) {
-		Task task = taskDAO.findById(taskId);
+		Task task = taskDAO.findOne(taskId);
 		task.setAssignee(userService.findById(assigneeId));
 		task.setStatus("Open");
 		task.setCompletedDate(null);
@@ -146,22 +165,7 @@ public class TaskServiceImpl implements TaskService {
 
 	@Override
 	public void deleteTask(Long taskId) {
-		taskDAO.deleteTask(taskDAO.findById(taskId));
-	}
-
-	@Override
-	public void addFile(Long taskId, String fileName) {
-		taskDAO.addFile(taskId, fileName);
-	}
-
-	@Override
-	public void deleteFile(Long taskId, Long fileId) {
-		taskDAO.deleteFile(taskId, fileId);
-	}
-
-	@Override
-	public void deleteAllFiles(Long taskId) {
-		taskDAO.deleteAllFiles(taskId);
+		taskDAO.delete(taskDAO.findOne(taskId));
 	}
 
 }

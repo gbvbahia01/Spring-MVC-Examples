@@ -2,13 +2,44 @@ package br.com.gbvbahia.smvc.taskify.domain;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
+
+@Entity
+@Table(name = "TBL_USER", uniqueConstraints = @UniqueConstraint(name = "UK_USER_USERNAME", columnNames = {
+		"USER_NAME" }) )
 public class User {
 
+	@Id
+	@SequenceGenerator(name = "SEQ_USER", sequenceName = "SEQ_USER", allocationSize = 1, initialValue = 1001)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_USER")
 	private Long id;
+
+	@Column(name = "NAME", length = 200)
 	private String name;
+
+	@Column(name = "USER_NAME", length = 25)
 	private String userName;
+
+	@Column(name = "PASSWORD", length = 20)
 	private String password;
+
+	@Column(name = "DOB")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateOfBirth;
+
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "FILE_ID", referencedColumnName = "ID")
 	private File profileImage;
 
 	public User() {

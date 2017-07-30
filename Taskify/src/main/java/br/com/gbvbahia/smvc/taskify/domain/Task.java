@@ -1,21 +1,51 @@
 package br.com.gbvbahia.smvc.taskify.domain;
 
 import java.util.Date;
-import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+@Entity
+@Table(name = "tbl_task")
 public class Task {
 
+	@Id
+	@SequenceGenerator(name = "SEQ_TASK", sequenceName = "SEQ_TASK", allocationSize = 1, initialValue=1001)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TASK")
 	private Long id;
+
+	@Column(name = "NAME", length = 500)
 	private String name;
+
+	@Column(name = "PRIORITY")
 	private int priority;
+
+	@Column(name = "STATUS")
 	private String status;
+
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "CREATED_USER_ID", referencedColumnName = "ID")
 	private User createdBy;
+
+	@Column(name = "CREATED_DATE")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdDate;
+
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "ASSIGNEE_USER_ID", referencedColumnName = "ID")
 	private User assignee;
 	private Date completedDate;
-	
-	private List<File> files;
 
+	@Column(name = "COMMENTS")
 	private String comments;
 
 	public Task() {
@@ -105,19 +135,11 @@ public class Task {
 		this.comments = comments;
 	}
 
-	public List<File> getFiles() {
-		return files;
-	}
-
-	public void setFiles(List<File> files) {
-		this.files = files;
-	}
-
 	@Override
 	public String toString() {
 		return "Task [id=" + id + ", name=" + name + ", priority=" + priority + ", status=" + status + ", createdBy="
 				+ createdBy + ", createdDate=" + createdDate + ", assignee=" + assignee + ", completedDate="
-				+ completedDate + ", files=" + files + ", comments=" + comments + "]";
+				+ completedDate + ", comments=" + comments + "]";
 	}
 
 }

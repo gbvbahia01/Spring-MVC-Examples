@@ -19,9 +19,11 @@ public interface TaskService {
 
 	List<Task> findAllOpenTasks();
 
-	List<Task> findAllClosedTasks();
+	List<Task> findAllCompletedTasks();
 
 	int findAllOpenTasksCount();
+
+	int findAllCompletedTasksCount();
 
 	List<Task> findTasksByAssignee(String assigneeUserName);
 
@@ -29,20 +31,14 @@ public interface TaskService {
 
 	List<Task> findOpenTasksByAssignee(String assigneeUserName);
 
-	List<Task> findClosedTasksByAssignee(Long assigneeId);
+	List<Task> findCompletedTasksByAssignee(Long assigneeId);
 
-	List<Task> findClosedTasksByAssignee(String assigneeUserName);
+	List<Task> findCompletedTasksByAssignee(String assigneeUserName);
 
 	void completeTask(Long taskId, String comments, Long userId);
 
 	void reassignTask(Long taskId, String comments, Long assigneeId);
 
 	void deleteTask(Long taskId);
-
-	void addFile(Long taskId, String fileName);
-
-	void deleteFile(Long taskId, Long fileId);
-
-	void deleteAllFiles(Long taskId);
 	
 }

@@ -1,19 +1,20 @@
 package br.com.gbvbahia.smvc.taskify.service.impl;
 
+import br.com.gbvbahia.smvc.taskify.dao.FileDAO;
 import br.com.gbvbahia.smvc.taskify.dao.UserDAO;
 import br.com.gbvbahia.smvc.taskify.domain.File;
 import br.com.gbvbahia.smvc.taskify.domain.User;
 import br.com.gbvbahia.smvc.taskify.service.UserService;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("userService")
+@Transactional
 public class UserServiceImpl implements UserService {
 
 	Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -21,12 +22,15 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserDAO userDAO;
 
+	@Autowired
+	private FileDAO fileDAO;
+
 	public UserServiceImpl() {
 		logger.debug("SimpleTaskService instantiated");
 	}
 
 	public User findById(Long userId) {
-		return this.userDAO.findById(userId);
+		return this.userDAO.findOne(userId);
 	}
 
 	public User findByUserName(String userName) {
@@ -34,47 +38,80 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public User createNewUser(User user) {
-		user.setId(new Date().getTime());
-		this.userDAO.createUser(user);
+		if (user.getProfileImage() != null) {
+			this.fileDAO.save(user.getProfileImage());
+		}
+		this.userDAO.save(user);
 		logger.debug("New user created successfully: " + user);
 		return user;
 	}
 
 	@Override
+	public void createUsers(List<User> users) {
+		for (User user : users) {
+			if (user.getProfileImage() != null) {
+				this.fileDAO.save(user.getProfileImage());
+			}
+		}
+		this.userDAO.save(users);
+	}
+
+	@Override
 	public void updateUser(User user) {
-		User existingUser = this.userDAO.findById(user.getId());
+		User existingUser = this.userDAO.findOne(user.getId());
 		if (existingUser == null) {
 			throw new UnsupportedOperationException("No user found with id, " + user.getId());
 		}
-		existingUser.setDateOfBirth(user.getDateOfBirth());
+
+		if (user.getProfileImage() != null) {
+			this.fileDAO.save(user.getProfileImage());
+		}
+
 		existingUser.setName(user.getName());
+		existingUser.setDateOfBirth(user.getDateOfBirth());
 		existingUser.setPassword(user.getPassword());
+		existingUser.setProfileImage(user.getProfileImage());
 		existingUser.setUserName(user.getUserName());
+		this.userDAO.save(existingUser);
 	}
 
 	@Override
 	public void deleteUser(User user) {
-		User existingUser = this.userDAO.findById(user.getId());
+		User existingUser = this.userDAO.findOne(user.getId());
 		if (existingUser == null) {
 			throw new UnsupportedOperationException("No user found with id, " + user.getId());
 		}
-		this.userDAO.deleteUser(existingUser);
+		this.userDAO.delete(existingUser);
 	}
 
 	@Override
 	public List<User> findAllUsers() {
-		return this.userDAO.findAllUsers();
+		return this.userDAO.findAll();
 	}
 
 	@Override
 	public File addProfileImage(Long userId, String fileName) {
-		return this.userDAO.addProfileImage(userId, fileName);
+		User existingUser = this.userDAO.findOne(userId);
+		if (existingUser == null) {
+			throw new UnsupportedOperationException("No user found with id, " + userId);
+		}
+		existingUser.setProfileImage(new File(null, fileName));
+		this.fileDAO.save(existingUser.getProfileImage());
 
+		this.userDAO.save(existingUser);
+
+		return existingUser.getProfileImage();
 	}
 
 	@Override
 	public void deleteProfileImage(Long userId) {
-		this.userDAO.removeProfileImage(userId);
+		User existingUser = this.userDAO.findOne(userId);
+		if (existingUser == null) {
+			throw new UnsupportedOperationException("No user found with id, " + userId);
+		}
+		existingUser.setProfileImage(null);
+
+		this.userDAO.save(existingUser);
 	}
 
 }
