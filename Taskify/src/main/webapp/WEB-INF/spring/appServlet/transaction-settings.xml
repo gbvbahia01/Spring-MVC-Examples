@@ -20,6 +20,10 @@
 
 	<!-- the transactional advice (what 'happens'; see the <aop:advisor/> bean 
 		below) -->
+                
+                <!-- You need to first enable transaction management in your application before Spring
+                    can detect the @Transactional annotation for your bean methods.  -->
+                <!--  <tx:annotation-driven transaction-manager="transactionManager" /> -->
 
 	<tx:advice id="txAdvice" transaction-manager="transactionManager">
 		<!-- the transactional semantics... -->
