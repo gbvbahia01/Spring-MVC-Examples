@@ -48,4 +48,5 @@
 	</beans:bean>
 
         <beans:import resource="app-context.xml"/>
+        <beans:import resource="websocket.xml"/>
 </beans:beans>
