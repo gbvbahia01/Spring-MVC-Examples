@@ -21,7 +21,7 @@
         <org.aspectj-version>1.6.10</org.aspectj-version>
         <spring-data-jpa.version>1.9.0.RELEASE</spring-data-jpa.version>
         <hibernate.version>5.0.3.Final</hibernate.version>
-        <hibernate-api.version>5.2.2.Final</hibernate-api.version>
+        <hibernate-api.version>5.3.6.Final</hibernate-api.version>
         <org.slf4j-version>1.6.6</org.slf4j-version>
         <servlet-api-version>3.1.0</servlet-api-version>
         <jsp-api-version>2.2</jsp-api-version>
